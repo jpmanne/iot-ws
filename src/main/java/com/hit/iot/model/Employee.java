@@ -6,7 +6,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 // Mongo database annotation.
 @Document(collection= "employee")
 public class Employee {
-
 	@Id
 	private int id;
 	private String name;
