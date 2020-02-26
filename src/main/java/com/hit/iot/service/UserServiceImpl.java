@@ -1,6 +1,7 @@
 package com.hit.iot.service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,13 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	UserDao dao;
 
+	//=========================================================================
+	
+	@Override
+	public List<UserDetails> getUsersByEmail(String email) {
+		return dao.getUserByEmail(email);
+	}
+	
 	//=========================================================================
 	
 	@Override
@@ -48,6 +56,6 @@ public class UserServiceImpl implements UserService {
 	public void updateUser(UserDetails userDetails) {
 		dao.save(userDetails);
 	}
-	
+
 	//=========================================================================
 }

@@ -2,7 +2,10 @@ package com.hit.iot.controller;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+
+import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,19 +19,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hit.iot.util.AppUtil;
 import com.hit.iot.common.Constants;
 import com.hit.iot.common.URLConstants;
-import com.hit.iot.model.Employee;
 import com.hit.iot.model.Response;
 import com.hit.iot.model.UserDetails;
-import com.hit.iot.service.Employeeservice;
 import com.hit.iot.service.UserService;
+import com.hit.iot.util.ValidationUtil;
 
 @RestController
 @RequestMapping(value= URLConstants.User.API_BASE)
-public class UserController {
+public class UserController extends BaseController {
 	@Autowired
 	UserService service;
 
@@ -36,16 +40,54 @@ public class UserController {
 
 	//=========================================================================
 	
+	@GetMapping(URLConstants.User.IS_EMAIL_EXISTS)
+	public ResponseEntity<Response> isEmailExists(@RequestParam("email") String email) /*throws JBoradException*/ {
+		String logTag = "isEmailExists() :";
+		logger.info(AppUtil.getStartMethodMessage(logTag));
+		Response response = null;
+		List<UserDetails> existingUsers = null;
+		
+		try {
+			existingUsers = service.getUsersByEmail(email.toLowerCase());
+			
+			if(existingUsers != null && existingUsers.size() > 0) {
+				response = new Response("Email already exists.", null);
+			} else {
+				response = new Response("Email available.", null);
+			}
+		} catch (Exception e) {
+			String exceptionMessage = logTag + "Exception while isEmailExists";
+			//handleException(logger, logTag, exceptionMessage, e, null); 
+		}
+		logger.info(AppUtil.getEndMethodMessage(logTag));
+		return new ResponseEntity<Response>(response, HttpStatus.OK);
+	}
+
+	//=========================================================================
+	
 	@PostMapping(value= URLConstants.User.ADD_USER)
-	public ResponseEntity<Response> create(@RequestBody UserDetails userDetails) {
+	public ResponseEntity<Response> create(@Valid @RequestBody UserDetails userDetails) {
 		logger.debug("Saving user.");
 		Response response = null;
-		userDetails.setId(System.currentTimeMillis());
-		userDetails.setStatus(Constants.ACTIVE);
-		userDetails.setCreateAt(new Date());
-		userDetails = service.createUser(userDetails);
-		if(userDetails != null && userDetails.getId() > 0) {
-			response = new Response("User Added Successfully", userDetails);
+		List<UserDetails> existingUsers = null;
+		
+		try {
+			String validationResult = ValidationUtil.getInstance().validateUserDetails(userDetails);
+			if(!Constants.SUCCESS.equalsIgnoreCase(validationResult)) {
+				return getInvalidDataResponseEntity(validationResult);
+			}
+			existingUsers = service.getUsersByEmail(userDetails.getEmail().toLowerCase());
+			
+			if(existingUsers != null && existingUsers.size() > 0) {
+				response = new Response("Email already exists.", null);
+			} else {
+				userDetails.setUserDetailsId(System.currentTimeMillis());
+				userDetails.setStatus(Constants.ACTIVE);
+				userDetails = service.createUser(userDetails);
+				response = new Response("User Added Successfully", userDetails);
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
