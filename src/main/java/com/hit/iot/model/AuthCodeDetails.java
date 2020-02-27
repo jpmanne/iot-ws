@@ -8,14 +8,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection= "authcode_details")
 public class AuthCodeDetails {
 	@Id
-	private int id;
+	private long id;
 	private String authCode;
 	private long loginTime;
 	private long logoutTime;
 	private String status;
 	private Date loginDate;
 	private long userDetailsId;
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 	public String getAuthCode() {
@@ -36,7 +36,7 @@ public class AuthCodeDetails {
 	public long getUserDetailsId() {
 		return userDetailsId;
 	}
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 	public void setAuthCode(String authCode) {

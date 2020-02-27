@@ -18,6 +18,13 @@ public class UserServiceImpl implements UserService {
 	//=========================================================================
 	
 	@Override
+	public List<UserDetails> getUsersByEmailAndPassword(String email, String password) {
+		return dao.findByEmailAndPassword(email, password);
+	}
+	
+	//=========================================================================
+	
+	@Override
 	public List<UserDetails> getUsersByEmail(String email) {
 		return dao.findByEmail(email);
 	}
