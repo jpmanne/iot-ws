@@ -14,6 +14,6 @@ import com.hit.iot.model.UserDetails;
 @Repository
 public interface UserDao extends MongoRepository<UserDetails, Integer> {
 
-	@Query("{'email : ?0'}")
-	List<UserDetails> getUserByEmail(String email);
+	//@Query("{'email : ?0'}")
+	List<UserDetails> findByEmail(String email);
 }

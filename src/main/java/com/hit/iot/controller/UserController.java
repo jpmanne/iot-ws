@@ -77,7 +77,7 @@ public class UserController extends BaseController {
 				return getInvalidDataResponseEntity(validationResult);
 			}
 			existingUsers = service.getUsersByEmail(userDetails.getEmail().toLowerCase());
-			
+			logger.info(">>>>>>>>>>>>> existingUsers : "+existingUsers);
 			if(existingUsers != null && existingUsers.size() > 0) {
 				response = new Response("Email already exists.", null);
 			} else {
